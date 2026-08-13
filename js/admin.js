@@ -29,6 +29,20 @@ async function boot() {
   });
 }
 
+// If the Worker rejects the stored password (401), the session password is
+// stale — clear it and drop back to the login gate instead of leaving the
+// admin stuck behind a confusing "Incorrect password" error.
+function handleAuthError(err) {
+  if (err.status !== 401) return false;
+  sessionStorage.removeItem("otoscopy_admin_pw");
+  state.password = null;
+  document.getElementById("gate-password").value = "";
+  document.getElementById("admin-main").classList.add("hidden");
+  document.getElementById("gate").classList.remove("hidden");
+  setStatus("case-status", "", "");
+  return true;
+}
+
 async function enterAdmin() {
   document.getElementById("gate").classList.add("hidden");
   document.getElementById("admin-main").classList.remove("hidden");
@@ -123,6 +137,7 @@ async function handleDeleteCase(caseId) {
     if (state.editingCaseId === caseId) cancelEditCase();
     setStatus("case-status", "Case deleted.", "ok");
   } catch (err) {
+    if (handleAuthError(err)) return;
     setStatus("case-status", `Couldn't delete case: ${err.message}`, "err");
   }
 }
@@ -157,6 +172,7 @@ async function handleDeleteImage(imageId) {
     renderLibraryManage();
     setStatus("case-status", "Image deleted.", "ok");
   } catch (err) {
+    if (handleAuthError(err)) return;
     if (err.status === 409 && err.data?.usedBy) {
       const names = err.data.usedBy.map((u) => u.title || u.id).join(", ");
       setStatus("case-status", `Can't delete — still used by: ${names}`, "err");
@@ -296,6 +312,7 @@ async function handleUploadImage(ear) {
     renderPicker(ear);
     setStatus("case-status", `${capitalize(ear)} image uploaded and added to the library.`, "ok");
   } catch (err) {
+    if (handleAuthError(err)) return;
     setStatus("case-status", `Upload failed: ${err.message}`, "err");
   }
 }
@@ -370,6 +387,7 @@ async function handleCreateCase(e) {
     setStatus("case-status", isEdit ? "Case updated." : "Case created.", "ok");
     cancelEditCase();
   } catch (err) {
+    if (handleAuthError(err)) return;
     setStatus("case-status", `Couldn't save case: ${err.message}`, "err");
   }
 }
