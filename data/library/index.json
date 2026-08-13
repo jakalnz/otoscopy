@@ -4,7 +4,10 @@
       "id": "img_norm_l",
       "ear": "left",
       "path": "data/library/left/img_norm_l.svg",
-      "tags": ["normal", "cone-of-light-present"],
+      "tags": [
+        "normal",
+        "cone-of-light-present"
+      ],
       "uploadedAt": "2026-08-13T00:00:00Z",
       "uploadedBy": "seed"
     },
@@ -12,7 +15,10 @@
       "id": "img_norm_r",
       "ear": "right",
       "path": "data/library/right/img_norm_r.svg",
-      "tags": ["normal", "cone-of-light-present"],
+      "tags": [
+        "normal",
+        "cone-of-light-present"
+      ],
       "uploadedAt": "2026-08-13T00:00:00Z",
       "uploadedBy": "seed"
     },
@@ -20,7 +26,11 @@
       "id": "img_perf_l",
       "ear": "left",
       "path": "data/library/left/img_perf_l.svg",
-      "tags": ["perforation", "central", "chronic"],
+      "tags": [
+        "perforation",
+        "central",
+        "chronic"
+      ],
       "uploadedAt": "2026-08-13T00:00:00Z",
       "uploadedBy": "seed"
     },
@@ -28,9 +38,23 @@
       "id": "img_perf_r",
       "ear": "right",
       "path": "data/library/right/img_perf_r.svg",
-      "tags": ["perforation", "central", "chronic"],
+      "tags": [
+        "perforation",
+        "central",
+        "chronic"
+      ],
       "uploadedAt": "2026-08-13T00:00:00Z",
       "uploadedBy": "seed"
+    },
+    {
+      "id": "img_02eaxe",
+      "ear": "left",
+      "path": "data/library/left/img_02eaxe.png",
+      "tags": [
+        "perforation"
+      ],
+      "uploadedAt": "2026-08-13T09:38:04.443Z",
+      "uploadedBy": "admin"
     }
   ]
 }
