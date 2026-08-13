@@ -9,7 +9,7 @@
 // holds the real GitHub token; the browser only ever holds the shared
 // admin password. See /worker/worker.js and the README for setup.
 
-const WORKER_URL = "https://otoscopy-admin.YOUR-SUBDOMAIN.workers.dev";
+const WORKER_URL = "https://otoscopy-admin.mpsanders.workers.dev";
 
 const Api = {
   async getCaseIndex() {

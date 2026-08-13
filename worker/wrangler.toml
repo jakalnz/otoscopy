@@ -5,7 +5,7 @@ compatibility_date = "2026-08-01"
 # Non-secret vars — set these directly here or via `wrangler` dashboard
 [vars]
 GITHUB_OWNER = "jakalnz"
-GITHUB_REPO = "otoscopy-simulator"
+GITHUB_REPO = "otoscopy"
 GITHUB_BRANCH = "main"
 
 # Secrets — do NOT put these here. Set them with:
