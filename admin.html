@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Otoscopy Simulator — Admin</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-eyebrow">MAud &middot; Clinical Skills</span>
+      Otoscopy Simulator — Admin
+    </div>
+    <nav>
+      <a href="index.html">Viewer</a>
+    </nav>
+  </div>
+
+  <div class="page">
+
+    <div id="gate" class="gate">
+      <p class="section-label">Supervisor access</p>
+      <h1>Enter admin password</h1>
+      <form id="gate-form">
+        <input id="gate-password" type="password" placeholder="Shared password" autocomplete="off" />
+        <button type="submit" style="margin-top: 14px; width: 100%;">Continue</button>
+      </form>
+    </div>
+
+    <div id="admin-main" class="hidden">
+
+      <section>
+        <p class="section-label">New case</p>
+        <h1>Build a case</h1>
+        <p>Pick an image from the library for each ear, or upload a new one — new uploads are tagged and saved to the library automatically.</p>
+
+        <form id="case-form" class="admin-panel">
+          <label for="case-title-input">Case title</label>
+          <input id="case-title-input" type="text" placeholder="e.g. Chronic central perforation" required />
+
+          <label for="case-difficulty-input">Difficulty</label>
+          <select id="case-difficulty-input">
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+
+          <label for="case-desc-input">Case description (shown before reveal)</label>
+          <textarea id="case-desc-input" placeholder="Brief clinical vignette or presenting history"></textarea>
+
+          <label for="case-findings-input">Findings (revealed after review)</label>
+          <textarea id="case-findings-input" placeholder="What the student should have observed" required></textarea>
+
+          <div class="two-col" style="margin-top: 20px;">
+            <!-- LEFT EAR -->
+            <div id="picker-left">
+              <label>Left ear image</label>
+              <div class="upload-toggle">
+                <button type="button" id="mode-library-left" class="active">From library</button>
+                <button type="button" id="mode-upload-left">Upload new</button>
+              </div>
+
+              <div id="panel-library-left">
+                <input id="search-left" type="text" placeholder="Search tags, e.g. perforation" />
+                <div class="tag-bar" style="margin-top: 8px;"></div>
+                <div class="library-picker" id="library-grid-left"></div>
+              </div>
+
+              <div id="panel-upload-left" class="hidden">
+                <input id="file-left" type="file" accept="image/*" />
+                <label for="upload-tags-left">Tags (comma-separated)</label>
+                <input id="upload-tags-left" type="text" placeholder="perforation, central, chronic" />
+              </div>
+            </div>
+
+            <!-- RIGHT EAR -->
+            <div id="picker-right">
+              <label>Right ear image</label>
+              <div class="upload-toggle">
+                <button type="button" id="mode-library-right" class="active">From library</button>
+                <button type="button" id="mode-upload-right">Upload new</button>
+              </div>
+
+              <div id="panel-library-right">
+                <input id="search-right" type="text" placeholder="Search tags, e.g. perforation" />
+                <div class="tag-bar" style="margin-top: 8px;"></div>
+                <div class="library-picker" id="library-grid-right"></div>
+              </div>
+
+              <div id="panel-upload-right" class="hidden">
+                <input id="file-right" type="file" accept="image/*" />
+                <label for="upload-tags-right">Tags (comma-separated)</label>
+                <input id="upload-tags-right" type="text" placeholder="perforation, central, chronic" />
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" style="margin-top: 24px;">Create case</button>
+          <div class="status-line" id="case-status"></div>
+
+          <div id="new-case-share" class="hidden share-box" style="margin-top: 16px;">
+            <input id="new-case-share-url" type="text" readonly />
+            <button type="button" id="copy-new-case-btn" class="secondary">Copy link</button>
+          </div>
+        </form>
+      </section>
+
+      <section style="margin-top: 44px;">
+        <p class="section-label">Existing cases</p>
+        <h2>Case library</h2>
+        <div class="case-list-admin" id="case-list-admin"></div>
+      </section>
+
+    </div>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "id": "case_normal_001",
+  "title": "Normal tympanic membrane",
+  "difficulty": "beginner",
+  "description": "Routine otoscopy on an asymptomatic adult. Use this case to establish a baseline for a healthy tympanic membrane before reviewing pathological cases.",
+  "findings": "Bilateral tympanic membranes are pearly grey and translucent, with the cone of light visible in the antero-inferior quadrant. No perforation, retraction, or effusion.",
+  "leftImageId": "img_norm_l",
+  "rightImageId": "img_norm_r",
+  "createdAt": "2026-08-13T00:00:00Z",
+  "createdBy": "seed"
+}

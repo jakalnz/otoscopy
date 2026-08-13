@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Otoscopy Simulator</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-eyebrow">MAud &middot; Clinical Skills</span>
+      Otoscopy Simulator
+    </div>
+    <nav>
+      <a href="admin.html">Admin</a>
+    </nav>
+  </div>
+
+  <div class="page">
+
+    <!-- Case picker -->
+    <section id="picker-view">
+      <p class="section-label">Select a case</p>
+      <h1>Choose a case to examine</h1>
+      <p>Each case shows a left and right otoscopy view. Review both ears, form your impression, then reveal the documented findings.</p>
+      <div class="case-grid" id="case-grid"></div>
+    </section>
+
+    <!-- Case view -->
+    <section id="case-view" class="hidden">
+      <p class="section-label">Case</p>
+      <h1 id="case-title"></h1>
+      <p id="case-description"></p>
+
+      <div class="scope-pair">
+        <div class="scope-unit">
+          <div class="scope-ear-label">Left ear</div>
+          <div class="scope-frame">
+            <img id="left-img" alt="Left ear otoscopy view" />
+          </div>
+        </div>
+        <div class="scope-unit">
+          <div class="scope-ear-label">Right ear</div>
+          <div class="scope-frame">
+            <img id="right-img" alt="Right ear otoscopy view" />
+          </div>
+        </div>
+      </div>
+
+      <button id="reveal-btn" class="reveal-btn">Reveal findings</button>
+
+      <div id="findings" class="findings hidden">
+        <h2>Findings</h2>
+        <p id="findings-text"></p>
+      </div>
+
+      <div class="share-box">
+        <input id="share-url" type="text" readonly />
+        <button id="copy-share-btn" class="secondary">Copy link</button>
+      </div>
+      <div class="status-line ok" id="share-status"></div>
+
+      <p style="margin-top: 28px;"><a href="index.html">&larr; Back to case list</a></p>
+    </section>
+
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/viewer.js"></script>
+</body>
+</html>
