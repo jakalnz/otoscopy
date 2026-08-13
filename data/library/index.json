@@ -1,17 +1,6 @@
 {
   "images": [
     {
-      "id": "img_norm_r",
-      "ear": "right",
-      "path": "data/library/right/img_norm_r.svg",
-      "tags": [
-        "normal",
-        "cone-of-light-present"
-      ],
-      "uploadedAt": "2026-08-13T00:00:00Z",
-      "uploadedBy": "seed"
-    },
-    {
       "id": "img_perf_l",
       "ear": "left",
       "path": "data/library/left/img_perf_l.svg",
