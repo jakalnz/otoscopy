@@ -55,6 +55,16 @@
       ],
       "uploadedAt": "2026-08-13T09:38:04.443Z",
       "uploadedBy": "admin"
+    },
+    {
+      "id": "img_i2c8yc",
+      "ear": "right",
+      "path": "data/library/right/img_i2c8yc.png",
+      "tags": [
+        "perforation chronic cholesteatoma"
+      ],
+      "uploadedAt": "2026-08-13T09:38:07.997Z",
+      "uploadedBy": "admin"
     }
   ]
 }
