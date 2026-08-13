@@ -49,31 +49,10 @@
           <label for="case-desc-input">Case description (shown before reveal)</label>
           <textarea id="case-desc-input" placeholder="Brief clinical vignette or presenting history"></textarea>
 
-          <label for="case-findings-input">Findings (revealed after review)</label>
-          <textarea id="case-findings-input" placeholder="What the student should have observed" required></textarea>
+          <label for="case-findings-input">Findings (revealed after review) — optional</label>
+          <textarea id="case-findings-input" placeholder="What the student should have observed"></textarea>
 
           <div class="two-col" style="margin-top: 20px;">
-            <!-- LEFT EAR -->
-            <div id="picker-left">
-              <label>Left ear image</label>
-              <div class="upload-toggle">
-                <button type="button" id="mode-library-left" class="active">From library</button>
-                <button type="button" id="mode-upload-left">Upload new</button>
-              </div>
-
-              <div id="panel-library-left">
-                <input id="search-left" type="text" placeholder="Search tags, e.g. perforation" />
-                <div class="tag-bar" style="margin-top: 8px;"></div>
-                <div class="library-picker" id="library-grid-left"></div>
-              </div>
-
-              <div id="panel-upload-left" class="hidden">
-                <input id="file-left" type="file" accept="image/*" />
-                <label for="upload-tags-left">Tags (comma-separated)</label>
-                <input id="upload-tags-left" type="text" placeholder="perforation, central, chronic" />
-              </div>
-            </div>
-
             <!-- RIGHT EAR -->
             <div id="picker-right">
               <label>Right ear image</label>
@@ -94,9 +73,31 @@
                 <input id="upload-tags-right" type="text" placeholder="perforation, central, chronic" />
               </div>
             </div>
+
+            <!-- LEFT EAR -->
+            <div id="picker-left">
+              <label>Left ear image</label>
+              <div class="upload-toggle">
+                <button type="button" id="mode-library-left" class="active">From library</button>
+                <button type="button" id="mode-upload-left">Upload new</button>
+              </div>
+
+              <div id="panel-library-left">
+                <input id="search-left" type="text" placeholder="Search tags, e.g. perforation" />
+                <div class="tag-bar" style="margin-top: 8px;"></div>
+                <div class="library-picker" id="library-grid-left"></div>
+              </div>
+
+              <div id="panel-upload-left" class="hidden">
+                <input id="file-left" type="file" accept="image/*" />
+                <label for="upload-tags-left">Tags (comma-separated)</label>
+                <input id="upload-tags-left" type="text" placeholder="perforation, central, chronic" />
+              </div>
+            </div>
           </div>
 
-          <button type="submit" style="margin-top: 24px;">Create case</button>
+          <button type="submit" id="case-submit-btn" style="margin-top: 24px;">Create case</button>
+          <button type="button" id="case-cancel-edit-btn" class="secondary hidden" style="margin-top: 24px;">Cancel edit</button>
           <div class="status-line" id="case-status"></div>
 
           <div id="new-case-share" class="hidden share-box" style="margin-top: 16px;">
@@ -110,6 +111,13 @@
         <p class="section-label">Existing cases</p>
         <h2>Case library</h2>
         <div class="case-list-admin" id="case-list-admin"></div>
+      </section>
+
+      <section style="margin-top: 44px;">
+        <p class="section-label">Image library</p>
+        <h2>Manage images</h2>
+        <p>Delete images that are no longer needed. Images still used by a case can't be deleted until that case is removed or edited.</p>
+        <div class="library-picker" id="library-manage-grid"></div>
       </section>
 
     </div>

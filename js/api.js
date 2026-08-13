@@ -13,19 +13,19 @@ const WORKER_URL = "https://otoscopy-admin.mpsanders.workers.dev";
 
 const Api = {
   async getCaseIndex() {
-    const res = await fetch("data/cases/index.json", { cache: "no-store" });
+    const res = await fetch(`data/cases/index.json?v=${Date.now()}`, { cache: "no-store" });
     if (!res.ok) throw new Error("Could not load case index");
     return res.json();
   },
 
   async getCase(caseId) {
-    const res = await fetch(`data/cases/${caseId}.json`, { cache: "no-store" });
+    const res = await fetch(`data/cases/${caseId}.json?v=${Date.now()}`, { cache: "no-store" });
     if (!res.ok) throw new Error(`Case not found: ${caseId}`);
     return res.json();
   },
 
   async getLibraryIndex() {
-    const res = await fetch("data/library/index.json", { cache: "no-store" });
+    const res = await fetch(`data/library/index.json?v=${Date.now()}`, { cache: "no-store" });
     if (!res.ok) throw new Error("Could not load image library");
     return res.json();
   },
@@ -33,25 +33,40 @@ const Api = {
   // ---- admin writes, via the Worker ----
 
   async createCase(password, caseData) {
-    return Api._post(password, "/api/case", caseData);
+    return Api._request("POST", password, "/api/case", caseData);
+  },
+
+  async updateCase(password, caseId, caseData) {
+    return Api._request("PUT", password, `/api/case/${caseId}`, caseData);
+  },
+
+  async deleteCase(password, caseId) {
+    return Api._request("DELETE", password, `/api/case/${caseId}`);
   },
 
   async uploadImage(password, { ear, tags, filename, dataUrl }) {
-    return Api._post(password, "/api/image", { ear, tags, filename, dataUrl });
+    return Api._request("POST", password, "/api/image", { ear, tags, filename, dataUrl });
   },
 
-  async _post(password, path, body) {
+  async deleteImage(password, imageId) {
+    return Api._request("DELETE", password, `/api/image/${imageId}`);
+  },
+
+  async _request(method, password, path, body) {
     const res = await fetch(WORKER_URL + path, {
-      method: "POST",
+      method,
       headers: {
         "Content-Type": "application/json",
         "X-Admin-Password": password,
       },
-      body: JSON.stringify(body),
+      ...(body ? { body: JSON.stringify(body) } : {}),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      throw new Error(data.error || `Request failed (${res.status})`);
+      const err = new Error(data.error || `Request failed (${res.status})`);
+      err.status = res.status;
+      err.data = data;
+      throw err;
     }
     return data;
   },

@@ -69,6 +69,7 @@ async function showCase(caseId) {
 
   document.getElementById("findings-text").textContent = caseData.findings || "";
   document.getElementById("findings").classList.add("hidden");
+  document.getElementById("reveal-btn").classList.toggle("hidden", !caseData.findings);
 
   const shareUrl = new URL(window.location.href);
   shareUrl.searchParams.set("case", caseId);

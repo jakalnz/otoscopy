@@ -383,3 +383,24 @@ label:first-child { margin-top: 0; }
   font-size: 0.9rem;
 }
 .case-row .id { font-family: var(--font-mono); color: var(--text-faint); font-size: 0.75rem; }
+.case-row-actions { display: flex; gap: 8px; }
+.case-row-actions button { font-size: 0.8rem; padding: 6px 10px; }
+
+.library-manage-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.library-manage-item .tags {
+  font-family: var(--font-mono);
+  color: var(--text-faint);
+  font-size: 0.7rem;
+  max-width: 84px;
+  text-align: center;
+  overflow-wrap: break-word;
+}
+.library-manage-item button.delete-btn {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+}

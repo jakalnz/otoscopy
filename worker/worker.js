@@ -17,7 +17,7 @@
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*", // tighten to your Pages origin in production
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Methods": "POST, PUT, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, X-Admin-Password",
 };
 
@@ -28,8 +28,9 @@ export default {
     }
 
     const url = new URL(request.url);
+    const method = request.method;
 
-    if (request.method !== "POST") {
+    if (!["POST", "PUT", "DELETE"].includes(method)) {
       return json({ error: "Not found" }, 404);
     }
 
@@ -38,12 +39,24 @@ export default {
       return json({ error: "Incorrect password" }, 401);
     }
 
+    const caseMatch = url.pathname.match(/^\/api\/case\/([^/]+)$/);
+    const imageMatch = url.pathname.match(/^\/api\/image\/([^/]+)$/);
+
     try {
-      if (url.pathname === "/api/case") {
+      if (method === "POST" && url.pathname === "/api/case") {
         return await handleCreateCase(request, env);
       }
-      if (url.pathname === "/api/image") {
+      if (method === "POST" && url.pathname === "/api/image") {
         return await handleUploadImage(request, env);
+      }
+      if (method === "PUT" && caseMatch) {
+        return await handleUpdateCase(request, env, caseMatch[1]);
+      }
+      if (method === "DELETE" && caseMatch) {
+        return await handleDeleteCase(env, caseMatch[1]);
+      }
+      if (method === "DELETE" && imageMatch) {
+        return await handleDeleteImage(env, imageMatch[1]);
       }
       return json({ error: "Not found" }, 404);
     } catch (err) {
@@ -58,7 +71,7 @@ async function handleCreateCase(request, env) {
   const body = await request.json();
   const { title, difficulty, description, findings, leftImageId, rightImageId } = body;
 
-  if (!title || !findings || !leftImageId || !rightImageId) {
+  if (!title || !leftImageId || !rightImageId) {
     return json({ error: "Missing required case fields" }, 400);
   }
 
@@ -88,6 +101,98 @@ async function handleCreateCase(request, env) {
   });
 
   return json({ case: caseData });
+}
+
+async function handleUpdateCase(request, env, id) {
+  const body = await request.json();
+  const { title, difficulty, description, findings, leftImageId, rightImageId } = body;
+
+  if (!title || !leftImageId || !rightImageId) {
+    return json({ error: "Missing required case fields" }, 400);
+  }
+
+  const existing = await getFile(env, `data/cases/${id}.json`);
+  if (!existing) return json({ error: "Case not found" }, 404);
+  const previous = decodeFileJson(existing);
+
+  const caseData = {
+    ...previous,
+    title,
+    difficulty: difficulty || "beginner",
+    description: description || "",
+    findings: findings || "",
+    leftImageId,
+    rightImageId,
+  };
+
+  await putFile(
+    env,
+    `data/cases/${id}.json`,
+    JSON.stringify(caseData, null, 2),
+    `Update case: ${title}`
+  );
+
+  await updateJsonFile(env, "data/cases/index.json", `Update ${id} in case index`, (indexData) => {
+    const entry = indexData.cases.find((c) => c.id === id);
+    if (entry) {
+      entry.title = title;
+      entry.difficulty = caseData.difficulty;
+    }
+    return indexData;
+  });
+
+  return json({ case: caseData });
+}
+
+async function handleDeleteCase(env, id) {
+  const existing = await getFile(env, `data/cases/${id}.json`);
+  if (!existing) return json({ error: "Case not found" }, 404);
+
+  await deleteFile(env, `data/cases/${id}.json`, existing.sha, `Delete case: ${id}`);
+
+  await updateJsonFile(env, "data/cases/index.json", `Remove ${id} from case index`, (indexData) => {
+    indexData.cases = indexData.cases.filter((c) => c.id !== id);
+    return indexData;
+  });
+
+  return json({ deleted: id });
+}
+
+async function handleDeleteImage(env, id) {
+  const libraryFile = await getFile(env, "data/library/index.json");
+  const library = libraryFile ? decodeFileJson(libraryFile) : { images: [] };
+
+  const image = library.images.find((img) => img.id === id);
+  if (!image) return json({ error: "Image not found" }, 404);
+
+  const casesFile = await getFile(env, "data/cases/index.json");
+  const caseIndex = casesFile ? decodeFileJson(casesFile) : { cases: [] };
+
+  const usedBy = [];
+  for (const c of caseIndex.cases) {
+    const caseFile = await getFile(env, `data/cases/${c.id}.json`);
+    if (!caseFile) continue;
+    const caseData = decodeFileJson(caseFile);
+    if (caseData.leftImageId === id || caseData.rightImageId === id) {
+      usedBy.push({ id: c.id, title: c.title });
+    }
+  }
+
+  if (usedBy.length > 0) {
+    return json({ error: "Image is still used by one or more cases", usedBy }, 409);
+  }
+
+  const imageFile = await getFile(env, image.path);
+  if (imageFile) {
+    await deleteFile(env, image.path, imageFile.sha, `Delete library image: ${id}`);
+  }
+
+  await updateJsonFile(env, "data/library/index.json", `Remove ${id} from library index`, (indexData) => {
+    indexData.images = indexData.images.filter((img) => img.id !== id);
+    return indexData;
+  });
+
+  return json({ deleted: id });
 }
 
 async function handleUploadImage(request, env) {
@@ -150,6 +255,10 @@ async function getFile(env, path) {
   return res.json(); // includes .sha and base64 .content
 }
 
+function decodeFileJson(file) {
+  return JSON.parse(decodeURIComponent(escape(atob(file.content.replace(/\n/g, "")))));
+}
+
 async function putFile(env, path, textContent, message) {
   const base64 = btoa(unescape(encodeURIComponent(textContent)));
   return putFileBase64(env, path, base64, message);
@@ -177,11 +286,29 @@ async function putFileBase64(env, path, base64Content, message) {
   return res.json();
 }
 
+async function deleteFile(env, path, sha, message) {
+  const res = await fetch(
+    `${GH_API}/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/contents/${path}`,
+    {
+      method: "DELETE",
+      headers: ghHeaders(env),
+      body: JSON.stringify({
+        message,
+        sha,
+        branch: env.GITHUB_BRANCH,
+      }),
+    }
+  );
+  if (!res.ok) {
+    const errBody = await res.text();
+    throw new Error(`GitHub delete failed (${res.status}): ${errBody}`);
+  }
+  return res.json();
+}
+
 async function updateJsonFile(env, path, message, mutateFn) {
   const existing = await getFile(env, path);
-  const current = existing
-    ? JSON.parse(decodeURIComponent(escape(atob(existing.content.replace(/\n/g, "")))))
-    : {};
+  const current = existing ? decodeFileJson(existing) : {};
   const updated = mutateFn(current);
   const base64 = btoa(unescape(encodeURIComponent(JSON.stringify(updated, null, 2))));
 

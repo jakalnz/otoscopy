@@ -12,6 +12,7 @@ const state = {
   selection: { left: null, right: null }, // { mode: 'library'|'upload', imageId? , file? }
   tagFilter: { left: new Set(), right: new Set() },
   searchText: { left: "", right: "" },
+  editingCaseId: null,
 };
 
 async function boot() {
@@ -41,6 +42,7 @@ async function enterAdmin() {
     state.caseIndex = caseIndex;
     renderPickers();
     renderCaseList();
+    renderLibraryManage();
   } catch (err) {
     setStatus("case-status", "Couldn't load library or case data: " + err.message, "err");
   }
@@ -59,10 +61,109 @@ function renderCaseList() {
         <div>${escapeHtml(c.title)}</div>
         <div class="id">${escapeHtml(c.id)}</div>
       </div>
-      <a class="btn secondary" href="${shareUrl.toString()}" target="_blank">Open</a>
+      <div class="case-row-actions">
+        <a class="btn secondary" href="${shareUrl.toString()}" target="_blank">Open</a>
+        <button type="button" class="secondary" data-edit="${escapeHtml(c.id)}">Edit</button>
+        <button type="button" class="secondary" data-delete="${escapeHtml(c.id)}">Delete</button>
+      </div>
     `;
     wrap.appendChild(row);
   });
+
+  wrap.querySelectorAll("[data-edit]").forEach((btn) => {
+    btn.addEventListener("click", () => startEditCase(btn.dataset.edit));
+  });
+  wrap.querySelectorAll("[data-delete]").forEach((btn) => {
+    btn.addEventListener("click", () => handleDeleteCase(btn.dataset.delete));
+  });
+}
+
+async function startEditCase(caseId) {
+  setStatus("case-status", "Loading case…", "");
+  try {
+    const caseData = await Api.getCase(caseId);
+    state.editingCaseId = caseId;
+
+    document.getElementById("case-title-input").value = caseData.title || "";
+    document.getElementById("case-difficulty-input").value = caseData.difficulty || "beginner";
+    document.getElementById("case-desc-input").value = caseData.description || "";
+    document.getElementById("case-findings-input").value = caseData.findings || "";
+
+    state.selection.left = caseData.leftImageId ? { mode: "library", imageId: caseData.leftImageId } : null;
+    state.selection.right = caseData.rightImageId ? { mode: "library", imageId: caseData.rightImageId } : null;
+    renderPickers();
+
+    document.getElementById("case-submit-btn").textContent = "Save changes";
+    document.getElementById("case-cancel-edit-btn").classList.remove("hidden");
+    setStatus("case-status", `Editing "${caseData.title}".`, "ok");
+    document.getElementById("case-form").scrollIntoView({ behavior: "smooth" });
+  } catch (err) {
+    setStatus("case-status", `Couldn't load case: ${err.message}`, "err");
+  }
+}
+
+function cancelEditCase() {
+  state.editingCaseId = null;
+  document.getElementById("case-form").reset();
+  state.selection = { left: null, right: null };
+  renderPickers();
+  document.getElementById("case-submit-btn").textContent = "Create case";
+  document.getElementById("case-cancel-edit-btn").classList.add("hidden");
+}
+
+async function handleDeleteCase(caseId) {
+  const c = state.caseIndex.cases.find((x) => x.id === caseId);
+  if (!confirm(`Delete case "${c ? c.title : caseId}"? This can't be undone.`)) return;
+
+  setStatus("case-status", "Deleting case…", "");
+  try {
+    await Api.deleteCase(state.password, caseId);
+    state.caseIndex.cases = state.caseIndex.cases.filter((x) => x.id !== caseId);
+    renderCaseList();
+    if (state.editingCaseId === caseId) cancelEditCase();
+    setStatus("case-status", "Case deleted.", "ok");
+  } catch (err) {
+    setStatus("case-status", `Couldn't delete case: ${err.message}`, "err");
+  }
+}
+
+// ---------- image library management ----------
+
+function renderLibraryManage() {
+  const grid = document.getElementById("library-manage-grid");
+  grid.innerHTML = "";
+  state.library.images.forEach((img) => {
+    const item = document.createElement("div");
+    item.className = "library-manage-item";
+    item.innerHTML = `
+      <div class="scope-frame thumb"><img src="${img.path}" alt="${escapeHtml(img.tags.join(', '))}" /></div>
+      <div class="tags">${escapeHtml(img.ear)}${img.tags.length ? " · " + escapeHtml(img.tags.map((t) => "#" + t).join(" ")) : ""}</div>
+      <button type="button" class="secondary delete-btn" data-delete-image="${escapeHtml(img.id)}">Delete</button>
+    `;
+    grid.appendChild(item);
+  });
+
+  grid.querySelectorAll("[data-delete-image]").forEach((btn) => {
+    btn.addEventListener("click", () => handleDeleteImage(btn.dataset.deleteImage));
+  });
+}
+
+async function handleDeleteImage(imageId) {
+  if (!confirm("Delete this image from the library?")) return;
+  try {
+    await Api.deleteImage(state.password, imageId);
+    state.library.images = state.library.images.filter((x) => x.id !== imageId);
+    renderPickers();
+    renderLibraryManage();
+    setStatus("case-status", "Image deleted.", "ok");
+  } catch (err) {
+    if (err.status === 409 && err.data?.usedBy) {
+      const names = err.data.usedBy.map((u) => u.title || u.id).join(", ");
+      setStatus("case-status", `Can't delete — still used by: ${names}`, "err");
+    } else {
+      setStatus("case-status", `Couldn't delete image: ${err.message}`, "err");
+    }
+  }
 }
 
 // ---------- image picker (per ear) ----------
@@ -218,8 +319,8 @@ async function handleCreateCase(e) {
   const description = document.getElementById("case-desc-input").value.trim();
   const findings = document.getElementById("case-findings-input").value.trim();
 
-  if (!title || !findings) {
-    setStatus("case-status", "Title and findings are required.", "err");
+  if (!title) {
+    setStatus("case-status", "Title is required.", "err");
     return;
   }
 
@@ -237,30 +338,39 @@ async function handleCreateCase(e) {
     return;
   }
 
-  setStatus("case-status", "Creating case…", "");
+  const caseData = {
+    title,
+    difficulty,
+    description,
+    findings,
+    leftImageId: leftSel.imageId,
+    rightImageId: rightSel.imageId,
+  };
+
+  const isEdit = !!state.editingCaseId;
+  setStatus("case-status", isEdit ? "Saving changes…" : "Creating case…", "");
   try {
-    const result = await Api.createCase(state.password, {
-      title,
-      difficulty,
-      description,
-      findings,
-      leftImageId: leftSel.imageId,
-      rightImageId: rightSel.imageId,
-    });
-    state.caseIndex.cases.push({ id: result.case.id, title, difficulty });
+    const result = isEdit
+      ? await Api.updateCase(state.password, state.editingCaseId, caseData)
+      : await Api.createCase(state.password, caseData);
+
+    if (isEdit) {
+      const entry = state.caseIndex.cases.find((c) => c.id === state.editingCaseId);
+      if (entry) { entry.title = title; entry.difficulty = difficulty; }
+    } else {
+      state.caseIndex.cases.push({ id: result.case.id, title, difficulty });
+    }
     renderCaseList();
 
     const shareUrl = new URL("index.html", window.location.href);
-    shareUrl.searchParams.set("case", result.case.id);
+    shareUrl.searchParams.set("case", isEdit ? state.editingCaseId : result.case.id);
     document.getElementById("new-case-share-url").value = shareUrl.toString();
     document.getElementById("new-case-share").classList.remove("hidden");
 
-    setStatus("case-status", "Case created.", "ok");
-    document.getElementById("case-form").reset();
-    state.selection = { left: null, right: null };
-    renderPickers();
+    setStatus("case-status", isEdit ? "Case updated." : "Case created.", "ok");
+    cancelEditCase();
   } catch (err) {
-    setStatus("case-status", `Couldn't create case: ${err.message}`, "err");
+    setStatus("case-status", `Couldn't save case: ${err.message}`, "err");
   }
 }
 
@@ -285,6 +395,10 @@ document.addEventListener("DOMContentLoaded", () => {
   setupSearchAndToggle("left");
   setupSearchAndToggle("right");
   document.getElementById("case-form").addEventListener("submit", handleCreateCase);
+  document.getElementById("case-cancel-edit-btn").addEventListener("click", () => {
+    cancelEditCase();
+    setStatus("case-status", "", "");
+  });
 
   document.getElementById("copy-new-case-btn")?.addEventListener("click", async () => {
     const input = document.getElementById("new-case-share-url");
