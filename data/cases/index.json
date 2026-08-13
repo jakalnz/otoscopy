@@ -1,11 +1,6 @@
 {
   "cases": [
     {
-      "id": "case_normal_001",
-      "title": "Normal tympanic membrane",
-      "difficulty": "beginner"
-    },
-    {
       "id": "case_perf_001",
       "title": "Chronic central perforation",
       "difficulty": "intermediate"
