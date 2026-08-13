@@ -1,18 +1,6 @@
 {
   "images": [
     {
-      "id": "img_perf_l",
-      "ear": "left",
-      "path": "data/library/left/img_perf_l.svg",
-      "tags": [
-        "perforation",
-        "central",
-        "chronic"
-      ],
-      "uploadedAt": "2026-08-13T00:00:00Z",
-      "uploadedBy": "seed"
-    },
-    {
       "id": "img_perf_r",
       "ear": "right",
       "path": "data/library/right/img_perf_r.svg",
