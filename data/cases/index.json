@@ -1,11 +1,6 @@
 {
   "cases": [
     {
-      "id": "case_perf_001",
-      "title": "Chronic central perforation",
-      "difficulty": "intermediate"
-    },
-    {
       "id": "case_gp_e0npwn",
       "title": "GP",
       "difficulty": "intermediate"
