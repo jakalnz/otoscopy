@@ -19,6 +19,16 @@
       ],
       "uploadedAt": "2026-08-13T09:38:07.997Z",
       "uploadedBy": "admin"
+    },
+    {
+      "id": "img_apxor5",
+      "ear": "right",
+      "path": "data/library/right/img_apxor5.jpg",
+      "tags": [
+        "normal"
+      ],
+      "uploadedAt": "2026-08-14T22:27:06.429Z",
+      "uploadedBy": "admin"
     }
   ]
 }
