@@ -219,7 +219,6 @@ p { color: var(--text-dim); line-height: 1.55; }
 }
 
 .scope-with-guide {
-  position: relative;
   display: flex;
   align-items: center;
 }
@@ -239,44 +238,79 @@ p { color: var(--text-dim); line-height: 1.55; }
 }
 .guide-toggle-btn:hover { border-color: var(--amber-dim); color: var(--text); }
 
-/* Floats beside the scope frame instead of squeezing the flex row, so it can
-   be large enough to read and dragged larger still (resize handle at the
-   bottom-right/bottom-left corner depending on side). */
+/* Floats as a freely draggable window (position set via JS on open / drag),
+   independent of page scroll and flex layout, so it can be moved and
+   resized large enough for the labelled text to be readable. */
 .scope-guide-panel {
-  position: absolute;
-  top: 50%;
-  z-index: 5;
-  width: 380px;
-  height: 380px;
-  min-width: 160px;
-  min-height: 160px;
-  max-width: min(640px, 80vw);
-  max-height: min(640px, 80vh);
+  position: fixed;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  width: 420px;
+  height: 440px;
+  min-width: 200px;
+  min-height: 180px;
+  max-width: min(720px, 92vw);
+  max-height: min(760px, 92vh);
   border-radius: var(--radius);
   background: var(--bg-panel);
   border: 1px solid var(--line);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
-  overflow: auto;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.55);
+  overflow: hidden;
   resize: both;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transform: translateY(-50%);
-  transition: opacity 0.25s ease, visibility 0.25s;
-}
-.scope-guide-panel img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
+  transition: opacity 0.2s ease, visibility 0.2s;
 }
 .scope-guide-panel.open {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
 }
-.scope-unit:first-child .scope-guide-panel { right: 100%; margin-right: 16px; }
-.scope-unit:last-child .scope-guide-panel { left: 100%; margin-left: 16px; }
+
+.guide-panel-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 8px 8px 14px;
+  background: var(--bg-panel-raised);
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  cursor: move;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.guide-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 2px 8px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.guide-close-btn:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+
+.guide-panel-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: #000;
+}
+.guide-panel-body img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
 
 /* ---------- findings panel ---------- */
 .findings {

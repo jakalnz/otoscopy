@@ -87,6 +87,74 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+// Wires a floating, draggable landmark guide panel (toggle button, close
+// button, and drag-by-the-bar) for one ear ("left" or "right"). The panel
+// starts positioned beside its otoscope frame, then stays wherever the
+// student last dragged it for the rest of the session.
+function setupGuidePanel(side) {
+  const toggle = document.getElementById(`${side}-guide-toggle`);
+  const panel = document.getElementById(`${side}-guide-panel`);
+  const bar = document.getElementById(`${side}-guide-bar`);
+  const closeBtn = document.getElementById(`${side}-guide-close`);
+  const frame = document.getElementById(`${side}-scope-frame`);
+  if (!toggle || !panel || !bar || !frame) return;
+
+  let positioned = false;
+
+  function placeNearFrame() {
+    const frameRect = frame.getBoundingClientRect();
+    const panelWidth = panel.offsetWidth || 420;
+    const margin = 20;
+    let left = side === "left"
+      ? frameRect.right + margin
+      : frameRect.left - panelWidth - margin;
+    left = Math.max(8, Math.min(left, window.innerWidth - panelWidth - 8));
+    const top = Math.max(8, frameRect.top);
+    panel.style.left = `${left}px`;
+    panel.style.top = `${top}px`;
+    positioned = true;
+  }
+
+  function openPanel() {
+    if (!positioned) placeNearFrame();
+    panel.classList.add("open");
+  }
+
+  function closePanel() {
+    panel.classList.remove("open");
+  }
+
+  toggle.addEventListener("click", () => {
+    panel.classList.contains("open") ? closePanel() : openPanel();
+  });
+  closeBtn?.addEventListener("click", closePanel);
+
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
+
+  function onDragMove(e) {
+    const x = Math.max(0, Math.min(e.clientX - dragOffsetX, window.innerWidth - 40));
+    const y = Math.max(0, Math.min(e.clientY - dragOffsetY, window.innerHeight - 40));
+    panel.style.left = `${x}px`;
+    panel.style.top = `${y}px`;
+  }
+
+  function onDragEnd() {
+    document.removeEventListener("pointermove", onDragMove);
+    document.removeEventListener("pointerup", onDragEnd);
+  }
+
+  bar.addEventListener("pointerdown", (e) => {
+    if (e.target.closest(".guide-close-btn")) return;
+    const rect = panel.getBoundingClientRect();
+    dragOffsetX = e.clientX - rect.left;
+    dragOffsetY = e.clientY - rect.top;
+    document.addEventListener("pointermove", onDragMove);
+    document.addEventListener("pointerup", onDragEnd);
+    e.preventDefault();
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   init();
 
@@ -95,12 +163,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("reveal-btn").classList.add("hidden");
   });
 
-  document.getElementById("right-guide-toggle")?.addEventListener("click", () => {
-    document.getElementById("right-guide-panel").classList.toggle("open");
-  });
-  document.getElementById("left-guide-toggle")?.addEventListener("click", () => {
-    document.getElementById("left-guide-panel").classList.toggle("open");
-  });
+  setupGuidePanel("right");
+  setupGuidePanel("left");
 
   document.getElementById("copy-share-btn")?.addEventListener("click", async () => {
     const input = document.getElementById("share-url");
