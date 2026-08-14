@@ -95,6 +95,13 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("reveal-btn").classList.add("hidden");
   });
 
+  document.getElementById("right-guide-toggle")?.addEventListener("click", () => {
+    document.getElementById("right-guide-panel").classList.toggle("open");
+  });
+  document.getElementById("left-guide-toggle")?.addEventListener("click", () => {
+    document.getElementById("left-guide-panel").classList.toggle("open");
+  });
+
   document.getElementById("copy-share-btn")?.addEventListener("click", async () => {
     const input = document.getElementById("share-url");
     input.select();

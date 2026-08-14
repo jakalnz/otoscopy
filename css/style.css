@@ -218,6 +218,51 @@ p { color: var(--text-dim); line-height: 1.55; }
     inset 0 0 30px 6px rgba(0,0,0,0.85);
 }
 
+.scope-with-guide {
+  display: flex;
+  align-items: center;
+}
+
+.guide-toggle-btn {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.78rem;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.guide-toggle-btn:hover { border-color: var(--amber-dim); color: var(--text); }
+
+.scope-guide-panel {
+  max-width: 0;
+  width: 200px;
+  height: 200px;
+  border-radius: var(--radius);
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  opacity: 0;
+  flex-shrink: 0;
+  transition: max-width 0.35s ease, opacity 0.25s ease, border-width 0.35s ease, margin 0.35s ease;
+}
+.scope-guide-panel img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  display: block;
+}
+.scope-guide-panel.open {
+  max-width: 200px;
+  opacity: 1;
+}
+.scope-unit:first-child .scope-guide-panel.open { margin-right: 16px; }
+.scope-unit:last-child .scope-guide-panel.open { margin-left: 16px; }
+
 /* ---------- findings panel ---------- */
 .findings {
   background: var(--bg-panel);
