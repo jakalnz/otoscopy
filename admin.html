@@ -116,6 +116,24 @@
       <section style="margin-top: 44px;">
         <p class="section-label">Image library</p>
         <h2>Manage images</h2>
+
+        <form id="library-upload-form" class="admin-panel" style="margin-bottom: 24px;">
+          <label for="library-upload-ear">Ear</label>
+          <select id="library-upload-ear">
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+          </select>
+
+          <label for="library-upload-file">Image file</label>
+          <input id="library-upload-file" type="file" accept="image/*" required />
+
+          <label for="library-upload-tags">Tags (comma-separated)</label>
+          <input id="library-upload-tags" type="text" placeholder="perforation, central, chronic" />
+
+          <button type="submit" style="margin-top: 16px;">Add to library</button>
+          <div class="status-line" id="library-upload-status"></div>
+        </form>
+
         <p>Delete images that are no longer needed. Images still used by a case can't be deleted until that case is removed or edited.</p>
         <div class="library-picker" id="library-manage-grid"></div>
       </section>
@@ -126,6 +144,6 @@
 
   <!-- bump ?v= on js/ changes — GitHub Pages' CDN caches these independent of the browser -->
   <script src="js/api.js?v=2"></script>
-  <script src="js/admin.js?v=2"></script>
+  <script src="js/admin.js?v=3"></script>
 </body>
 </html>

@@ -27,6 +27,7 @@ async function boot() {
     sessionStorage.setItem("otoscopy_admin_pw", pw);
     await enterAdmin();
   });
+  document.getElementById("library-upload-form").addEventListener("submit", handleStandaloneUpload);
 }
 
 // If the Worker rejects the stored password (401), the session password is
@@ -314,6 +315,35 @@ async function handleUploadImage(ear) {
   } catch (err) {
     if (handleAuthError(err)) return;
     setStatus("case-status", `Upload failed: ${err.message}`, "err");
+  }
+}
+
+async function handleStandaloneUpload(e) {
+  e.preventDefault();
+  const ear = document.getElementById("library-upload-ear").value;
+  const fileInput = document.getElementById("library-upload-file");
+  const file = fileInput.files[0];
+  if (!file) {
+    setStatus("library-upload-status", "Choose a file first.", "err");
+    return;
+  }
+  const tags = document.getElementById("library-upload-tags").value
+    .split(",")
+    .map((t) => t.trim().toLowerCase().replace(/^#/, ""))
+    .filter(Boolean);
+
+  const dataUrl = await fileToDataUrl(file);
+  setStatus("library-upload-status", "Uploading…", "");
+  try {
+    const result = await Api.uploadImage(state.password, { ear, tags, filename: file.name, dataUrl });
+    state.library.images.push(result.image);
+    renderPickers();
+    renderLibraryManage();
+    document.getElementById("library-upload-form").reset();
+    setStatus("library-upload-status", "Image added to the library.", "ok");
+  } catch (err) {
+    if (handleAuthError(err)) return;
+    setStatus("library-upload-status", `Upload failed: ${err.message}`, "err");
   }
 }
 
