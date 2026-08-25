@@ -29,6 +29,17 @@
       ],
       "uploadedAt": "2026-08-14T22:27:06.429Z",
       "uploadedBy": "admin"
+    },
+    {
+      "id": "img_n50y4x",
+      "ear": "left",
+      "path": "data/library/left/img_n50y4x.png",
+      "tags": [
+        "normal",
+        "sparse wax"
+      ],
+      "uploadedAt": "2026-08-25T09:06:43.984Z",
+      "uploadedBy": "admin"
     }
   ]
 }
