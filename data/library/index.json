@@ -40,6 +40,16 @@
       ],
       "uploadedAt": "2026-08-25T09:06:43.984Z",
       "uploadedBy": "admin"
+    },
+    {
+      "id": "img_xjec7r",
+      "ear": "right",
+      "path": "data/library/right/img_xjec7r.jpg",
+      "tags": [
+        "casemaker-test"
+      ],
+      "uploadedAt": "2026-09-28T23:19:51.598Z",
+      "uploadedBy": "admin"
     }
   ]
 }
